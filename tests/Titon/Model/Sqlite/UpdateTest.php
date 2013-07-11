@@ -14,4 +14,18 @@ use Titon\Model\Data\AbstractUpdateTest;
  */
 class UpdateTest extends AbstractUpdateTest {
 
+	/**
+	 * Test multiple record updates with a limit and offset applied.
+	 */
+	public function testUpdateMultipleWithLimit() {
+		$this->markTestSkipped('SQLite does not support LIMIT in UPDATE');
+	}
+
+	/**
+	 * Test multiple record updates with an order by applied.
+	 */
+	public function testUpdateMultipleWithOrderBy() {
+		$this->markTestSkipped('SQLite does not support ORDER BY in UPDATE');
+	}
+
 }

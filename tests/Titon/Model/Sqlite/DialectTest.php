@@ -7,6 +7,7 @@
 
 namespace Titon\Model\Sqlite;
 
+use Titon\Model\Driver\Dialect;
 use Titon\Model\Driver\Schema;
 use Titon\Model\Query;
 use Titon\Test\Stub\DriverStub;
@@ -42,7 +43,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 		$query = new Query(Query::CREATE_TABLE, new User());
 		$query->schema($schema);
 
-		$this->assertEquals("CREATE  TABLE IF NOT EXISTS `foobar` (\n`column` INT NOT NULL\n);", $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT NOT NULL\n\);/', $this->object->buildCreateTable($query));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -50,7 +51,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'primary' => true
 		]);
 
-		$this->assertEquals("CREATE  TABLE IF NOT EXISTS `foobar` (\n`column` INT NOT NULL,\nPRIMARY KEY (`column`)\n);", $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT PRIMARY KEY\n\);/', $this->object->buildCreateTable($query));
 
 		$schema->addColumn('column2', [
 			'type' => 'int',
@@ -58,15 +59,11 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'index' => true
 		]);
 
-		$this->assertEquals("CREATE  TABLE IF NOT EXISTS `foobar` (\n`column` INT NOT NULL,\n`column2` INT NULL,\nPRIMARY KEY (`column`),\nCHECK (`column2`)\n);", $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT PRIMARY KEY,\n(`|\")column2(`|\") INT\n\);/', $this->object->buildCreateTable($query));
 
 		$schema->addOption('engine', 'InnoDB');
 
-		$this->assertEquals("CREATE  TABLE IF NOT EXISTS `foobar` (\n`column` INT NOT NULL,\n`column2` INT NULL,\nPRIMARY KEY (`column`),\nCHECK (`column2`)\n);", $this->object->buildCreateTable($query));
-
-		$query->attribute('temporary', true);
-
-		$this->assertEquals("CREATE TEMPORARY TABLE IF NOT EXISTS `foobar` (\n`column` INT NOT NULL,\n`column2` INT NULL,\nPRIMARY KEY (`column`),\nCHECK (`column2`)\n);", $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT PRIMARY KEY,\n(`|\")column2(`|\") INT\n\);/', $this->object->buildCreateTable($query));
 	}
 
 	/**
@@ -106,7 +103,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'type' => 'int'
 		]);
 
-		$this->assertEquals('`column` INT NOT NULL', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INT NOT NULL/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -114,7 +111,14 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'zerofill' => true
 		]);
 
-		$this->assertEquals('`column` INT NOT NULL', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INT NOT NULL/', $this->object->formatColumns($schema));
+
+		$schema->addColumn('column', [
+			'type' => 'int',
+			'primary' => true
+		]);
+
+		$this->assertRegExp('/(`|\")column(`|\") INT PRIMARY KEY/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -122,7 +126,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'comment' => 'Some comment here'
 		]);
 
-		$this->assertEquals('`column` INT NULL', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INT/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -130,7 +134,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'length' => 11
 		]);
 
-		$this->assertEquals('`column` INT(11) NOT NULL', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INT\(11\) NOT NULL/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -143,9 +147,9 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'comment' => 'Some comment here'
 		]);
 
-		$expected = '`column` INT(11) NULL DEFAULT NULL';
+		$expected = '(`|\")column(`|\") INT\(11\) DEFAULT NULL';
 
-		$this->assertEquals($expected, $this->object->formatColumns($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column2', [
 			'type' => 'varchar',
@@ -153,27 +157,27 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'null' => true
 		]);
 
-		$expected .= ",\n`column2` VARCHAR(255) NULL";
+		$expected .= ',\n(`|\")column2(`|\") VARCHAR\(255\)';
 
-		$this->assertEquals($expected, $this->object->formatColumns($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column3', [
 			'type' => 'smallint',
 			'default' => 3
 		]);
 
-		$expected .= ",\n`column3` SMALLINT NOT NULL DEFAULT '3'";
+		$expected .= ',\n(`|\")column3(`|\") SMALLINT NOT NULL DEFAULT \'3\'';
 
-		$this->assertEquals($expected, $this->object->formatColumns($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
 
 		// inherits values from type
 		$schema->addColumn('column4', [
 			'type' => 'datetime'
 		]);
 
-		$expected .= ",\n`column4` DATETIME NULL DEFAULT NULL";
+		$expected .= ',\n(`|\")column4(`|\") DATETIME DEFAULT NULL';
 
-		$this->assertEquals($expected, $this->object->formatColumns($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column5', [
 			'type' => 'varchar',
@@ -181,9 +185,16 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'charset' => 'utf8'
 		]);
 
-		$expected .= ",\n`column5` VARCHAR(255) NOT NULL COLLATE utf8_general_ci";
+		$expected .= ',\n(`|\")column5(`|\") VARCHAR\(255\) NOT NULL COLLATE utf8_general_ci';
 
-		$this->assertEquals($expected, $this->object->formatColumns($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
+	}
+
+	/**
+	 * Test index keys.
+	 */
+	public function testFormatTableIndex() {
+		$this->markTestSkipped('SQLite does not support CREATE TABLE statement indices');
 	}
 
 	/**
@@ -193,50 +204,84 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 		$schema = new Schema('foobar');
 		$schema->addUnique('primary');
 
-		$expected = ",\nUNIQUE (`primary`)";
+		$expected = ''; // no primary
 
-		$this->assertEquals($expected, $this->object->formatTableKeys($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatTableKeys($schema));
 
 		$schema->addUnique('unique', [
 			'constraint' => 'uniqueSymbol'
 		]);
 
-		$expected .= ",\nCONSTRAINT `uniqueSymbol` UNIQUE (`unique`)";
+		$expected .= '';
 
-		$this->assertEquals($expected, $this->object->formatTableKeys($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatTableKeys($schema));
 
 		$schema->addForeign('fk1', 'users.id');
 
-		$expected .= ",\nFOREIGN KEY (`fk1`) REFERENCES `users`(`id`)";
+		$expected .= ',\nFOREIGN KEY \((`|\")fk1(`|\")\) REFERENCES (`|\")users(`|\")\((`|\")id(`|\")\)';
 
-		$this->assertEquals($expected, $this->object->formatTableKeys($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatTableKeys($schema));
 
 		$schema->addForeign('fk2', [
 			'references' => 'posts.id',
-			'onUpdate' => Schema::SET_NULL,
-			'onDelete' => Schema::NO_ACTION
+			'onUpdate' => Dialect::SET_NULL,
+			'onDelete' => Dialect::NO_ACTION
 		]);
 
-		$expected .= ",\nFOREIGN KEY (`fk2`) REFERENCES `posts`(`id`) ON UPDATE SET NULL ON DELETE NO ACTION";
+		$expected .= ',\nFOREIGN KEY \((`|\")fk2(`|\")\) REFERENCES (`|\")posts(`|\")\((`|\")id(`|\")\) ON UPDATE SET NULL ON DELETE NO ACTION';
 
-		$this->assertEquals($expected, $this->object->formatTableKeys($schema));
-
-		$schema->addForeign('fk3', [
-			'references' => 'posts.id',
-			'match' => 'id',
-			'deferrable' => SqliteDialect::INIT_DEFERRED
-		]);
-
-		$expected .= ",\nFOREIGN KEY (`fk3`) REFERENCES `posts`(`id`) MATCH `id` DEFERRABLE INITIALLY DEFERRED";
-
-		$this->assertEquals($expected, $this->object->formatTableKeys($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatTableKeys($schema));
 
 		$schema->addIndex('column1');
 		$schema->addIndex('column2');
 
-		$expected .= ",\nCHECK (`column1`),\nCHECK (`column2`)";
+		// no indices
 
-		$this->assertEquals($expected, $this->object->formatTableKeys($schema));
+		$this->assertRegExp('/' . $expected . '/', $this->object->formatTableKeys($schema));
+	}
+
+	/**
+	 * Test primary key.
+	 */
+	public function testFormatTablePrimary() {
+		$this->markTestSkipped('Purposefully not implementing primary key constraints');
+	}
+
+	/**
+	 * Test unique keys.
+	 */
+	public function testFormatTableUnique() {
+		$data = ['columns' => ['foo'], 'constraint' => '', 'index' => 'idx'];
+
+		$this->assertRegExp('/UNIQUE \((`|\")foo(`|\")\)/', $this->object->formatTableUnique($data));
+
+		$data['constraint'] = 'symbol';
+		$this->assertRegExp('/CONSTRAINT (`|\")symbol(`|\") UNIQUE \((`|\")foo(`|\")\)/', $this->object->formatTableUnique($data));
+
+		$data['columns'][] = 'bar';
+		$this->assertRegExp('/CONSTRAINT (`|\")symbol(`|\") UNIQUE \((`|\")foo(`|\"), (`|\")bar(`|\")\)/', $this->object->formatTableUnique($data));
+	}
+
+	/**
+	 * Test identifier quoting.
+	 */
+	public function testQuote() {
+		$this->assertEquals('"foo"', $this->object->quote('foo'));
+		$this->assertEquals('"foo"', $this->object->quote('foo"'));
+		$this->assertEquals('"foo"', $this->object->quote('""foo"'));
+
+		$this->assertEquals('"foo"."bar"', $this->object->quote('foo.bar'));
+		$this->assertEquals('"foo"."bar"', $this->object->quote('foo"."bar'));
+		$this->assertEquals('"foo"."bar"', $this->object->quote('"foo"."bar"'));
+		$this->assertEquals('"foo".*', $this->object->quote('foo.*'));
+	}
+
+	/**
+	 * Test multiple identifier quoting.
+	 */
+	public function testQuoteList() {
+		$this->assertEquals('"foo", "bar", "baz"', $this->object->quoteList(['foo', '"bar', '"baz"']));
+		$this->assertEquals('"foo"."bar", "baz"', $this->object->quoteList(['foo.bar', '"baz"']));
 	}
 
 }

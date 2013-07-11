@@ -14,4 +14,18 @@ use Titon\Model\Data\AbstractDeleteTest;
  */
 class DeleteTest extends AbstractDeleteTest {
 
+	/**
+	 * Test delete with ordering.
+	 */
+	public function testDeleteOrdering() {
+		$this->markTestSkipped('SQLite does not support ORDER BY in DELETE');
+	}
+
+	/**
+	 * Test delete with a limit applied.
+	 */
+	public function testDeleteLimit() {
+		$this->markTestSkipped('SQLite does not support LIMIT in DELETE');
+	}
+
 }

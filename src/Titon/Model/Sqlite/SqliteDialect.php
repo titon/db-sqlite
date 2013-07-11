@@ -32,6 +32,15 @@ class SqliteDialect extends AbstractDialect {
 	const ROLLBACK = 'rollback';
 
 	/**
+	 * Configuration.
+	 *
+	 * @type array
+	 */
+	protected $_config = [
+		'quoteCharacter' => '"'
+	];
+
+	/**
 	 * List of full SQL statements.
 	 *
 	 * @type array
@@ -39,8 +48,8 @@ class SqliteDialect extends AbstractDialect {
 	protected $_statements = [
 		Query::INSERT		=> 'INSERT {a.or} INTO {table} {fields} VALUES {values}',
 		Query::SELECT		=> 'SELECT {a.distinct} {fields} FROM {table} {joins} {where} {groupBy} {having} {orderBy} {limit}',
-		Query::UPDATE		=> 'UPDATE {a.or} {table} SET {fields} {where} {orderBy} {limit}',
-		Query::DELETE		=> 'DELETE FROM {table} {where} {orderBy} {limit}',
+		Query::UPDATE		=> 'UPDATE {a.or} {table} SET {fields} {where}',
+		Query::DELETE		=> 'DELETE FROM {table} {where}',
 		Query::DROP_TABLE	=> 'DROP TABLE IF EXISTS {table}',
 		Query::CREATE_TABLE	=> "CREATE {a.temporary} TABLE IF NOT EXISTS {table} (\n{columns}{keys}\n)"
 	];
@@ -62,7 +71,7 @@ class SqliteDialect extends AbstractDialect {
 		],
 		Query::CREATE_TABLE => [
 			'temporary' => false
-		],
+		]
 	];
 
 	/**
@@ -86,22 +95,41 @@ class SqliteDialect extends AbstractDialect {
 
 			$output = [$this->quote($column), strtoupper($type)];
 
-			if (isset($options['null'])) {
-				$output[] = $this->getKeyword(empty($options['null']) ? self::NOT_NULL : self::NULL);
-			}
+			if (!empty($options['primary'])) {
+				$output[] = $this->getKeyword(self::PRIMARY_KEY);
 
-			if (isset($options['collate'])) {
-				$output[] = sprintf($this->getClause(self::COLLATE), $options['collate']);
-			}
+			} else {
+				if (empty($options['null'])) {
+					$output[] = $this->getKeyword(self::NOT_NULL);
+				}
 
-			if (array_key_exists('default', $options) && $options['default'] !== '') {
-				$output[] = sprintf($this->getClause(self::DEFAULT_TO), $this->getDriver()->escape($options['default']));
+				if (!empty($options['collate'])) {
+					$output[] = sprintf($this->getClause(self::COLLATE), $options['collate']);
+				}
+
+				if (array_key_exists('default', $options) && $options['default'] !== '') {
+					$output[] = sprintf($this->getClause(self::DEFAULT_TO), $this->getDriver()->escape($options['default']));
+				}
 			}
 
 			$columns[] = implode(' ', $output);
 		}
 
 		return implode(",\n", $columns);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function formatTablePrimary(array $data) {
+		return ''; // Return nothing as this will be handled as a column constraint
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function formatTableIndex($index, array $columns) {
+		return ''; // SQLite does not support indices within a CREATE TABLE statement
 	}
 
 	/**
