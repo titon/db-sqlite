@@ -76,6 +76,33 @@ class SqliteDialect extends AbstractDialect {
 	];
 
 	/**
+	 * Modify clauses and keywords.
+	 */
+	public function initialize() {
+		parent::initialize();
+
+		$this->_clauses = array_replace($this->_clauses, [
+			self::DEFERRABLE		=> 'DEFERRABLE %s',
+			self::EITHER 			=> 'OR %s',
+			self::MATCH				=> 'MATCH %s',
+			self::NOT_DEFERRABLE	=> 'NOT DEFERRABLE %s',
+			self::UNIQUE_KEY		=> 'UNIQUE (%2$s)'
+		]);
+
+		$this->_keywords = array_replace($this->_keywords, [
+			self::ABORT 			=> 'ABORT',
+			self::AUTO_INCREMENT	=> 'AUTOINCREMENT',
+			self::FAIL 				=> 'FAIL',
+			self::IGNORE 			=> 'IGNORE',
+			self::INIT_DEFERRED		=> 'INITIALLY DEFERRED',
+			self::INIT_IMMEDIATE	=> 'INITIALLY IMMEDIATE',
+			self::PRIMARY_KEY		=> 'PRIMARY KEY',
+			self::REPLACE 			=> 'REPLACE',
+			self::ROLLBACK 			=> 'ROLLBACK'
+		]);
+	}
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @throws \Titon\Model\Exception\UnsupportedQueryStatementException
@@ -144,34 +171,6 @@ class SqliteDialect extends AbstractDialect {
 	 */
 	public function formatTableIndex($index, array $columns) {
 		return ''; // SQLite does not support indices within a CREATE TABLE statement
-	}
-
-	/**
-	 * Modify clauses and keywords.
-	 */
-	public function initialize() {
-		parent::initialize();
-
-		$this->_clauses = array_replace($this->_clauses, [
-			self::DEFERRABLE		=> 'DEFERRABLE %s',
-			self::EITHER 			=> 'OR %s',
-			self::INDEX				=> 'CHECK (%2$s)',
-			self::MATCH				=> 'MATCH %s',
-			self::NOT_DEFERRABLE	=> 'NOT DEFERRABLE %s',
-			self::UNIQUE_KEY		=> 'UNIQUE (%2$s)'
-		]);
-
-		$this->_keywords = array_replace($this->_keywords, [
-			self::ABORT 			=> 'ABORT',
-			self::AUTO_INCREMENT	=> 'AUTOINCREMENT',
-			self::FAIL 				=> 'FAIL',
-			self::IGNORE 			=> 'IGNORE',
-			self::INIT_DEFERRED		=> 'INITIALLY DEFERRED',
-			self::INIT_IMMEDIATE	=> 'INITIALLY IMMEDIATE',
-			self::PRIMARY_KEY		=> 'PRIMARY KEY',
-			self::REPLACE 			=> 'REPLACE',
-			self::ROLLBACK 			=> 'ROLLBACK'
-		]);
 	}
 
 }
