@@ -10,6 +10,7 @@ namespace Titon\Model\Sqlite;
 use Titon\Model\Driver\Dialect\AbstractDialect;
 use Titon\Model\Driver\Schema;
 use Titon\Model\Driver\Type\AbstractType;
+use Titon\Model\Exception\UnsupportedQueryStatementException;
 use Titon\Model\Query;
 
 /**
@@ -75,10 +76,16 @@ class SqliteDialect extends AbstractDialect {
 	];
 
 	/**
-	 * Format columns for a table schema.
+	 * {@inheritdoc}
 	 *
-	 * @param \Titon\Model\Driver\Schema $schema
-	 * @return string
+	 * @throws \Titon\Model\Exception\UnsupportedQueryStatementException
+	 */
+	public function buildMultiInsert(Query $query) {
+		throw new UnsupportedQueryStatementException('SQLite does not support multi-inserts');
+	}
+
+	/**
+	 * {@inheritdoc}
 	 */
 	public function formatColumns(Schema $schema) {
 		$columns = [];
@@ -89,6 +96,11 @@ class SqliteDialect extends AbstractDialect {
 
 			$options = $options + $dataType->getDefaultOptions();
 
+			// Sqlite doesn't like the shorthand version
+			if ($type === 'int') {
+				$type = 'integer';
+			}
+
 			if (!empty($options['length'])) {
 				$type .= '(' . $options['length'] . ')';
 			}
@@ -96,7 +108,9 @@ class SqliteDialect extends AbstractDialect {
 			$output = [$this->quote($column), strtoupper($type)];
 
 			if (!empty($options['primary'])) {
+				$output[] = $this->getKeyword(self::NOT_NULL);
 				$output[] = $this->getKeyword(self::PRIMARY_KEY);
+				$output[] = $this->getKeyword(self::AUTO_INCREMENT);
 
 			} else {
 				if (empty($options['null'])) {

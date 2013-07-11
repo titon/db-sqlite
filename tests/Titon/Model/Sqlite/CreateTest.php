@@ -14,4 +14,11 @@ use Titon\Model\Data\AbstractCreateTest;
  */
 class CreateTest extends AbstractCreateTest {
 
+	/**
+	 * Test inserting multiple records with a single statement.
+	 */
+	public function testCreateMany() {
+		$this->markTestSkipped('SQLite does not support compound multi-insert');
+	}
+
 }

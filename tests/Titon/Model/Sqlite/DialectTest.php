@@ -44,7 +44,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 		$query = new Query(Query::CREATE_TABLE, new User());
 		$query->schema($schema);
 
-		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT NOT NULL\n\);/', $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INTEGER NOT NULL\n\);/', $this->object->buildCreateTable($query));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -52,7 +52,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'primary' => true
 		]);
 
-		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT PRIMARY KEY\n\);/', $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT\n\);/', $this->object->buildCreateTable($query));
 
 		$schema->addColumn('column2', [
 			'type' => 'int',
@@ -60,11 +60,11 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'index' => true
 		]);
 
-		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT PRIMARY KEY,\n(`|\")column2(`|\") INT\n\);/', $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n(`|\")column2(`|\") INTEGER\n\);/', $this->object->buildCreateTable($query));
 
 		$schema->addOption('engine', 'InnoDB');
 
-		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INT PRIMARY KEY,\n(`|\")column2(`|\") INT\n\);/', $this->object->buildCreateTable($query));
+		$this->assertRegExp('/CREATE\s+TABLE IF NOT EXISTS (`|\")foobar(`|\") \(\n(`|\")column(`|\") INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n(`|\")column2(`|\") INTEGER\n\);/', $this->object->buildCreateTable($query));
 	}
 
 	/**
@@ -100,6 +100,13 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 	 */
 	public function testBuildDescribe() {
 		$this->markTestSkipped('SQLite does not support the DESCRIBE statement');
+	}
+
+	/**
+	 * Test multi insert statement creation.
+	 */
+	public function testBuildMultiInsert() {
+		$this->markTestSkipped('SQLite does not support compound multi-insert');
 	}
 
 	/**
@@ -170,7 +177,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'type' => 'int'
 		]);
 
-		$this->assertRegExp('/(`|\")column(`|\") INT NOT NULL/', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INTEGER/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -178,22 +185,22 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'zerofill' => true
 		]);
 
-		$this->assertRegExp('/(`|\")column(`|\") INT NOT NULL/', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INTEGER/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
 			'primary' => true
 		]);
 
-		$this->assertRegExp('/(`|\")column(`|\") INT PRIMARY KEY/', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
-			'null' => true,
+			'null' => false,
 			'comment' => 'Some comment here'
 		]);
 
-		$this->assertRegExp('/(`|\")column(`|\") INT/', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INTEGER NOT NULL/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -201,7 +208,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'length' => 11
 		]);
 
-		$this->assertRegExp('/(`|\")column(`|\") INT\(11\) NOT NULL/', $this->object->formatColumns($schema));
+		$this->assertRegExp('/(`|\")column(`|\") INTEGER\(11\) NOT NULL/', $this->object->formatColumns($schema));
 
 		$schema->addColumn('column', [
 			'type' => 'int',
@@ -214,7 +221,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'comment' => 'Some comment here'
 		]);
 
-		$expected = '(`|\")column(`|\") INT\(11\) DEFAULT NULL';
+		$expected = '(`|\")column(`|\") INTEGER\(11\) NOT NULL DEFAULT NULL';
 
 		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
 
@@ -233,7 +240,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'default' => 3
 		]);
 
-		$expected .= ',\n(`|\")column3(`|\") SMALLINT NOT NULL DEFAULT \'3\'';
+		$expected .= ',\n(`|\")column3(`|\") SMALLINT DEFAULT \'3\'';
 
 		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
 
@@ -249,7 +256,8 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 		$schema->addColumn('column5', [
 			'type' => 'varchar',
 			'collate' => 'utf8_general_ci',
-			'charset' => 'utf8'
+			'charset' => 'utf8',
+			'null' => false
 		]);
 
 		$expected .= ',\n(`|\")column5(`|\") VARCHAR\(255\) NOT NULL COLLATE utf8_general_ci';
