@@ -7,6 +7,7 @@
 
 namespace Titon\Model\Sqlite;
 
+use Exception;
 use Titon\Model\Driver\Dialect;
 use Titon\Model\Driver\Schema;
 use Titon\Model\Query;
@@ -67,6 +68,27 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 	}
 
 	/**
+	 * Test delete statement creation.
+	 */
+	public function testBuildDelete() {
+		$query = new Query(Query::DELETE, new User());
+
+		$query->from('foobar');
+		$this->assertRegExp('/DELETE\s+FROM (`|\")foobar(`|\");/', $this->object->buildDelete($query));
+
+		// no limit
+		$query->limit(5);
+		$this->assertRegExp('/DELETE\s+FROM (`|\")foobar(`|\");/', $this->object->buildDelete($query));
+
+		$query->where('id', [1, 2, 3]);
+		$this->assertRegExp('/DELETE\s+FROM (`|\")foobar(`|\")\s+WHERE (`|\")id(`|\") IN \(\?, \?, \?\);/', $this->object->buildDelete($query));
+
+		// or order by
+		$query->orderBy('id', 'asc');
+		$this->assertRegExp('/DELETE\s+FROM (`|\")foobar(`|\")\s+WHERE (`|\")id(`|\") IN \(\?, \?, \?\);/', $this->object->buildDelete($query));
+	}
+
+	/**
 	 * Test delete statements that contain joins.
 	 */
 	public function testBuildDeleteJoins() {
@@ -78,6 +100,51 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 	 */
 	public function testBuildDescribe() {
 		$this->markTestSkipped('SQLite does not support the DESCRIBE statement');
+	}
+
+	/**
+	 * Test update statement creation.
+	 */
+	public function testBuildUpdate() {
+		$query = new Query(Query::UPDATE, new User());
+
+		// No fields
+		try {
+			$this->object->buildUpdate($query);
+			$this->assertTrue(false);
+		} catch (Exception $e) {
+			$this->assertTrue(true);
+		}
+
+		$query->fields(['username' => 'miles']);
+
+		// No table
+		try {
+			$this->object->buildUpdate($query);
+			$this->assertTrue(false);
+		} catch (Exception $e) {
+			$this->assertTrue(true);
+		}
+
+		$query->from('foobar');
+		$this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
+
+		// no limit
+		$query->limit(15);
+		$this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
+
+		// or order by
+		$query->orderBy('username', 'desc');
+		$this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
+
+		$query->fields([
+			'email' => 'email@domain.com',
+			'website' => 'http://titon.io'
+		]);
+		$this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")email(`|\") = \?, (`|\")website(`|\") = \?;/', $this->object->buildUpdate($query));
+
+		$query->where('status', 3);
+		$this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")email(`|\") = \?, (`|\")website(`|\") = \?\s+WHERE (`|\")status(`|\") = \?;/', $this->object->buildUpdate($query));
 	}
 
 	/**

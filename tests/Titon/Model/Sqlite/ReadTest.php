@@ -95,4 +95,25 @@ class ReadTest extends AbstractReadTest {
 		])->fetchAll());
 	}
 
+	/**
+	 * Test that outer join fetches data.
+	 */
+	public function testOuterJoin() {
+		$this->markTestSkipped('SQLite does not support OUTER joins');
+	}
+
+	/**
+	 * Test that right join fetches data.
+	 */
+	public function testRightJoin() {
+		$this->markTestSkipped('SQLite does not support RIGHT joins');
+	}
+
+	/**
+	 * Test that straight join fetches data.
+	 */
+	public function testStraightJoin() {
+		$this->markTestSkipped('SQLite does not support STRAIGHT joins');
+	}
+
 }
