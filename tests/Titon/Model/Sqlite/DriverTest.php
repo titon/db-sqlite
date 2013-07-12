@@ -20,8 +20,6 @@ class DriverTest extends \Titon\Model\Driver\PdoDriverTest {
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp() {
-		parent::setUp();
-
 		$this->object = new SqliteDriver('default', Config::get('db'));
 		$this->object->connect();
 

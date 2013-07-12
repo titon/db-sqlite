@@ -7,15 +7,15 @@
 
 namespace Titon\Model\Sqlite;
 
-use Exception;
+use Titon\Common\Config;
 use Titon\Model\Driver\Dialect;
 use Titon\Model\Driver\Schema;
 use Titon\Model\Query;
-use Titon\Test\Stub\DriverStub;
 use Titon\Test\Stub\Model\User;
+use \Exception;
 
 /**
- * Test class for database record deleting.
+ * Test class for dialect SQL building.
  */
 class DialectTest extends \Titon\Model\Driver\DialectTest {
 
@@ -23,12 +23,10 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp() {
-		parent::setUp();
-
-		$this->driver = new DriverStub('default', []);
+		$this->driver = new SqliteDriver('default', Config::get('db'));
 		$this->driver->connect();
 
-		$this->object = new SqliteDialect($this->driver);
+		$this->object = $this->driver->getDialect();
 	}
 
 	/**
