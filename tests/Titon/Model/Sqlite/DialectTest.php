@@ -30,6 +30,28 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 	}
 
 	/**
+	 * Test create index statement building.
+	 */
+	public function testBuildCreateIndex() {
+		$query = new Query(Query::CREATE_INDEX, new User());
+		$query->fields('profile_id')->from('users')->asAlias('idx');
+
+		$this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\)/', $this->object->buildCreateIndex($query));
+
+		$query->fields(['profile_id' => 5]);
+		$this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\(5\)\)/', $this->object->buildCreateIndex($query));
+
+		$query->fields(['profile_id' => 'asc', 'other_id']);
+		$this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\") ASC, (`|\")other_id(`|\")\)/', $this->object->buildCreateIndex($query));
+
+		$query->fields(['profile_id' => ['length' => 5, 'order' => 'desc']]);
+		$this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\(5\) DESC\)/', $this->object->buildCreateIndex($query));
+
+		$query->fields('profile_id')->attribute('type', SqliteDialect::UNIQUE);
+		$this->assertRegExp('/CREATE UNIQUE INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\)/', $this->object->buildCreateIndex($query));
+	}
+
+	/**
 	 * Test create table statement creation.
 	 */
 	public function testBuildCreateTable() {
@@ -94,10 +116,13 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 	}
 
 	/**
-	 * Test describe statement creation.
+	 * Test drop index statement building.
 	 */
-	public function testBuildDescribe() {
-		$this->markTestSkipped('SQLite does not support the DESCRIBE statement');
+	public function testBuildDropIndex() {
+		$query = new Query(Query::DROP_INDEX, new User());
+		$query->from('users')->asAlias('idx');
+
+		$this->assertRegExp('/DROP INDEX IF EXISTS (`|\")idx(`|\")/', $this->object->buildDropIndex($query));
 	}
 
 	/**
@@ -258,7 +283,7 @@ class DialectTest extends \Titon\Model\Driver\DialectTest {
 			'null' => false
 		]);
 
-		$expected .= ',\n(`|\")column5(`|\") VARCHAR\(255\) NOT NULL COLLATE utf8_general_ci';
+		$expected .= ',\n(`|\")column5(`|\") VARCHAR\(255\) NOT NULL';
 
 		$this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
 	}

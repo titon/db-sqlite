@@ -21,16 +21,20 @@ use Titon\Model\Query;
 class SqliteDialect extends AbstractDialect {
 
 	const ABORT = 'abort';
+	const BINARY = 'binary';
 	const DEFERRABLE = 'deferrable';
 	const FAIL = 'fail';
 	const IGNORE = 'ignore';
 	const INIT_DEFERRED = 'initiallyDeferred';
 	const INIT_IMMEDIATE = 'initiallyImmediate';
 	const MATCH = 'match';
+	const NOCASE = 'nocase';
 	const NOT_DEFERRABLE = 'notDeferrable';
 	const ON_CONFLICT = 'onConflict';
 	const REPLACE = 'replace';
 	const ROLLBACK = 'rollback';
+	const RTRIM = 'rtrim';
+	const UNIQUE = 'unique';
 
 	/**
 	 * Configuration.
@@ -51,8 +55,10 @@ class SqliteDialect extends AbstractDialect {
 		Query::SELECT		=> 'SELECT {a.distinct} {fields} FROM {table} {joins} {where} {groupBy} {having} {orderBy} {limit}',
 		Query::UPDATE		=> 'UPDATE {a.or} {table} SET {fields} {where}',
 		Query::DELETE		=> 'DELETE FROM {table} {where}',
+		Query::CREATE_TABLE	=> "CREATE {a.temporary} TABLE IF NOT EXISTS {table} (\n{columns}{keys}\n)",
+		Query::CREATE_INDEX	=> 'CREATE {a.type} INDEX IF NOT EXISTS {index} ON {table} ({fields})',
 		Query::DROP_TABLE	=> 'DROP TABLE IF EXISTS {table}',
-		Query::CREATE_TABLE	=> "CREATE {a.temporary} TABLE IF NOT EXISTS {table} (\n{columns}{keys}\n)"
+		Query::DROP_INDEX	=> 'DROP INDEX IF EXISTS {index}'
 	];
 
 	/**
@@ -72,6 +78,9 @@ class SqliteDialect extends AbstractDialect {
 		],
 		Query::CREATE_TABLE => [
 			'temporary' => false
+		],
+		Query::CREATE_INDEX => [
+			'type' => ''
 		]
 	];
 
@@ -91,14 +100,18 @@ class SqliteDialect extends AbstractDialect {
 
 		$this->_keywords = array_replace($this->_keywords, [
 			self::ABORT 			=> 'ABORT',
+			self::BINARY			=> 'BINARY',
 			self::AUTO_INCREMENT	=> 'AUTOINCREMENT',
 			self::FAIL 				=> 'FAIL',
 			self::IGNORE 			=> 'IGNORE',
 			self::INIT_DEFERRED		=> 'INITIALLY DEFERRED',
 			self::INIT_IMMEDIATE	=> 'INITIALLY IMMEDIATE',
+			self::NOCASE			=> 'NOCASE',
 			self::PRIMARY_KEY		=> 'PRIMARY KEY',
 			self::REPLACE 			=> 'REPLACE',
-			self::ROLLBACK 			=> 'ROLLBACK'
+			self::ROLLBACK 			=> 'ROLLBACK',
+			self::RTRIM				=> 'RTRIM',
+			self::UNIQUE			=> 'UNIQUE'
 		]);
 	}
 
@@ -144,7 +157,7 @@ class SqliteDialect extends AbstractDialect {
 					$output[] = $this->getKeyword(self::NOT_NULL);
 				}
 
-				if (!empty($options['collate'])) {
+				if (!empty($options['collate']) && in_array($options['collate'], [self::BINARY, self::NOCASE, self::RTRIM])) {
 					$output[] = sprintf($this->getClause(self::COLLATE), $options['collate']);
 				}
 
@@ -164,13 +177,6 @@ class SqliteDialect extends AbstractDialect {
 	 */
 	public function formatTablePrimary(array $data) {
 		return ''; // Return nothing as this will be handled as a column constraint
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function formatTableIndex($index, array $columns) {
-		return ''; // SQLite does not support indices within a CREATE TABLE statement
 	}
 
 }

@@ -43,13 +43,6 @@ class MiscTest extends AbstractMiscTest {
 	}
 
 	/**
-	 * Test table describing.
-	 */
-	public function testDescribeTable() {
-		$this->markTestSkipped('SQLite does not support the DESCRIBE statement');
-	}
-
-	/**
 	 * Test that sub-queries return results.
 	 */
 	public function testSubQueries() {
@@ -59,7 +52,7 @@ class MiscTest extends AbstractMiscTest {
 
 		// SQLite does not support the ANY filter, so use IN instead
 		$query = $user->select('id', 'country_id', 'username');
-		$query->where('country_id', 'in', $query->subQuery('id')->from('countries'));
+		$query->where('country_id', 'in', $query->subQuery('id')->from('countries'))->orderBy('id', 'asc');
 
 		$this->assertEquals([
 			['id' => 1, 'country_id' => 1, 'username' => 'miles'],
