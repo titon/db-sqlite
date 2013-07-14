@@ -1,4 +1,4 @@
-# Model.Sqlite v0.1.2 [![Build Status](https://travis-ci.org/titon/Model.png)](https://travis-ci.org/titon/Model) #
+# Model.Sqlite v0.1.3 [![Build Status](https://travis-ci.org/titon/Model.png)](https://travis-ci.org/titon/Model) #
 
 Provides SQLite access for the Titon Model package.
 
