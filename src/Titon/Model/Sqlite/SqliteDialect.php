@@ -10,7 +10,7 @@ namespace Titon\Model\Sqlite;
 use Titon\Model\Driver\Dialect\AbstractDialect;
 use Titon\Model\Driver\Schema;
 use Titon\Model\Driver\Type\AbstractType;
-use Titon\Model\Exception\UnsupportedQueryStatementException;
+use Titon\Model\Exception\UnsupportedFeatureException;
 use Titon\Model\Query;
 
 /**
@@ -118,10 +118,10 @@ class SqliteDialect extends AbstractDialect {
 	/**
 	 * {@inheritdoc}
 	 *
-	 * @throws \Titon\Model\Exception\UnsupportedQueryStatementException
+	 * @throws \Titon\Model\Exception\UnsupportedFeatureException
 	 */
 	public function buildMultiInsert(Query $query) {
-		throw new UnsupportedQueryStatementException('SQLite does not support multi-inserts');
+		throw new UnsupportedFeatureException('SQLite does not support multi-inserts');
 	}
 
 	/**
@@ -153,7 +153,7 @@ class SqliteDialect extends AbstractDialect {
 				$output[] = $this->getKeyword(self::AUTO_INCREMENT);
 
 			} else {
-				if (empty($options['null'])) {
+				if (empty($options['null']) || !empty($options['primary'])) {
 					$output[] = $this->getKeyword(self::NOT_NULL);
 				}
 
