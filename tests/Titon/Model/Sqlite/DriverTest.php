@@ -55,50 +55,35 @@ class DriverTest extends \Titon\Model\Driver\PdoDriverTest {
 				'type' => 'varchar',
 				'length' => '255',
 				'null' => true,
-				'default' => null,
-				// inherited from type
-				'charset' => 'utf8',
-				'collate' => 'utf8_unicode_ci'
+				'default' => null
 			],
 			'password' => [
 				'field' => 'password',
 				'type' => 'varchar',
 				'length' => '255',
 				'null' => true,
-				'default' => null,
-				// inherited from type
-				'charset' => 'utf8',
-				'collate' => 'utf8_unicode_ci'
+				'default' => null
 			],
 			'email' => [
 				'field' => 'email',
 				'type' => 'varchar',
 				'length' => '255',
 				'null' => true,
-				'default' => null,
-				// inherited from type
-				'charset' => 'utf8',
-				'collate' => 'utf8_unicode_ci'
+				'default' => null
 			],
 			'firstName' => [
 				'field' => 'firstName',
 				'type' => 'varchar',
 				'length' => '255',
 				'null' => true,
-				'default' => null,
-				// inherited from type
-				'charset' => 'utf8',
-				'collate' => 'utf8_unicode_ci'
+				'default' => null
 			],
 			'lastName' => [
 				'field' => 'lastName',
 				'type' => 'varchar',
 				'length' => '255',
 				'null' => true,
-				'default' => null,
-				// inherited from type
-				'charset' => 'utf8',
-				'collate' => 'utf8_unicode_ci'
+				'default' => null
 			],
 			'age' => [
 				'field' => 'age',
@@ -139,10 +124,7 @@ class DriverTest extends \Titon\Model\Driver\PdoDriverTest {
 				'type' => 'varchar',
 				'length' => '255',
 				'null' => true,
-				'default' => null,
-				// inherited from type
-				'charset' => 'utf8',
-				'collate' => 'utf8_unicode_ci'
+				'default' => null
 			],
 			'health' => [
 				'field' => 'health',

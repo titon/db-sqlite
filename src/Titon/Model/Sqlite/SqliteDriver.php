@@ -40,37 +40,6 @@ class SqliteDriver extends AbstractPdoDriver {
 
 	/**
 	 * {@inheritdoc}
-	 */
-	public function describeDatabase($database = null) {
-		$database = $database ?: $this->getDatabase();
-
-		return $this->cache([__METHOD__, $database], function() use ($database) {
-			$tables = $this->query('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->fetchAll(false);
-			$schema = [];
-
-			if (!$tables) {
-				return $schema;
-			}
-
-			foreach ($tables as $table) {
-				$name = $table['name'];
-
-				if ($name === 'sqlite_sequence') {
-					continue;
-				}
-
-				$schema[$name] = [
-					'table' => $name,
-					'sql' => $table['sql']
-				];
-			}
-
-			return $schema;
-		});
-	}
-
-	/**
-	 * {@inheritdoc}
 	 *
 	 * @uses Titon\Model\Type\AbstractType
 	 */
@@ -167,6 +136,32 @@ class SqliteDriver extends AbstractPdoDriver {
 	 */
 	public function isEnabled() {
 		return extension_loaded('pdo_sqlite');
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function listTables($database = null) {
+		$database = $database ?: $this->getDatabase();
+
+		return $this->cache([__METHOD__, $database], function() use ($database) {
+			$tables = $this->query('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->fetchAll(false);
+			$schema = [];
+
+			if (!$tables) {
+				return $schema;
+			}
+
+			foreach ($tables as $table) {
+				if ($table['name'] === 'sqlite_sequence') {
+					continue;
+				}
+
+				$schema[] = $table['name'];
+			}
+
+			return $schema;
+		});
 	}
 
 }
