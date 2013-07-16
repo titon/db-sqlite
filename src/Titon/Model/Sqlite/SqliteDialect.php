@@ -7,7 +7,7 @@
 
 namespace Titon\Model\Sqlite;
 
-use Titon\Model\Driver\Dialect\AbstractDialect;
+use Titon\Model\Driver\Dialect\AbstractPdoDialect;
 use Titon\Model\Driver\Schema;
 use Titon\Model\Driver\Type\AbstractType;
 use Titon\Model\Exception\UnsupportedFeatureException;
@@ -18,7 +18,7 @@ use Titon\Model\Query;
  *
  * @package Titon\Model\Sqlite
  */
-class SqliteDialect extends AbstractDialect {
+class SqliteDialect extends AbstractPdoDialect {
 
 	const ABORT = 'abort';
 	const BINARY = 'binary';
