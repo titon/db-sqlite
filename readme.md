@@ -9,4 +9,4 @@ Provides SQLite access for the Titon Model package.
 ### Requirements ###
 
 * PHP 5.4.0
-	* pdo_sqlite
+    * pdo_sqlite

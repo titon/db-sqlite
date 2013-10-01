@@ -1,8 +1,8 @@
 <?php
 /**
- * @copyright	Copyright 2010-2013, The Titon Project
- * @license		http://opensource.org/licenses/bsd-license.php
- * @link		http://titon.io
+ * @copyright   2010-2013, The Titon Project
+ * @license     http://opensource.org/licenses/bsd-license.php
+ * @link        http://titon.io
  */
 
 namespace Titon\Model\Sqlite;
@@ -14,11 +14,11 @@ use Titon\Model\Data\AbstractCreateTest;
  */
 class CreateTest extends AbstractCreateTest {
 
-	/**
-	 * Test inserting multiple records with a single statement.
-	 */
-	public function testCreateMany() {
-		$this->markTestSkipped('SQLite does not support compound multi-insert');
-	}
+    /**
+     * Test inserting multiple records with a single statement.
+     */
+    public function testCreateMany() {
+        $this->markTestSkipped('SQLite does not support compound multi-insert');
+    }
 
 }

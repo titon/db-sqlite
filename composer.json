@@ -1,26 +1,26 @@
 {
-	"name": "titon/model-sqlite",
-	"type": "library",
-	"description": "Provides SQLite database access for the Titon Model package.",
-	"keywords": ["titon", "model", "driver", "sqlite", "pdo", "database"],
-	"homepage": "http://titon.io",
-	"license": "BSD-2",
-	"authors": [
-		{
-			"name": "Miles Johnson",
-			"homepage": "http://milesj.me"
-		}
-	],
-	"require": {
-		"php": ">=5.4.0",
-		"ext-pdo_sqlite": "*",
-		"titon/model": "*"
-	},
-	"require-dev": {
-		"titon/test": "*",
-		"titon/cache": "*"
-	},
-	"autoload": {
-		"psr-0": { "Titon\\Model\\Sqlite": "src/" }
-	}
+    "name": "titon/model-sqlite",
+    "type": "library",
+    "description": "Provides SQLite database access for the Titon Model package.",
+    "keywords": ["titon", "model", "driver", "sqlite", "pdo", "database"],
+    "homepage": "http://titon.io",
+    "license": "BSD-2",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-pdo_sqlite": "*",
+        "titon/model": "dev-master"
+    },
+    "require-dev": {
+        "titon/test": "*",
+        "titon/cache": "*"
+    },
+    "autoload": {
+        "psr-0": { "Titon\\Model\\Sqlite": "src/" }
+    }
 }
