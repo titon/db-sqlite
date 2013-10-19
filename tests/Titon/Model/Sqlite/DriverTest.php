@@ -87,7 +87,7 @@ class DriverTest extends \Titon\Model\Driver\PdoDriverTest {
             ],
             'age' => [
                 'field' => 'age',
-                'type' => 'tinyint',
+                'type' => 'smallint',
                 'length' => '',
                 'null' => true,
                 'default' => null
