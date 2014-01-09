@@ -5,11 +5,11 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Model\Sqlite;
+namespace Titon\Db\Sqlite;
 
-use Titon\Model\Data\AbstractMiscTest;
-use Titon\Model\Query;
-use Titon\Test\Stub\Model\User;
+use Titon\Db\Data\AbstractMiscTest;
+use Titon\Db\Query;
+use Titon\Test\Stub\Table\User;
 
 /**
  * Test class for misc database functionality.
@@ -22,7 +22,7 @@ class MiscTest extends AbstractMiscTest {
     public function testCreateDropTable() {
         $user = new User();
 
-        $sql = sprintf("SELECT COUNT(name) FROM sqlite_master WHERE type = 'table' AND name = '%s';", $user->getTable());
+        $sql = sprintf("SELECT COUNT(name) FROM sqlite_master WHERE type = 'table' AND name = '%s';", $user->getTableName());
 
         $this->assertEquals(0, $user->getDriver()->query($sql)->count());
 

@@ -5,19 +5,19 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Model\Sqlite;
+namespace Titon\Db\Sqlite;
 
 use Titon\Common\Config;
-use Titon\Model\Driver\Dialect;
-use Titon\Model\Driver\Schema;
-use Titon\Model\Query;
-use Titon\Test\Stub\Model\User;
+use Titon\Db\Driver\Dialect;
+use Titon\Db\Driver\Schema;
+use Titon\Db\Query;
+use Titon\Test\Stub\Table\User;
 use \Exception;
 
 /**
  * Test class for dialect SQL building.
  */
-class DialectTest extends \Titon\Model\Driver\DialectTest {
+class DialectTest extends \Titon\Db\Driver\DialectTest {
 
     /**
      * This method is called before a test is executed.

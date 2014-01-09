@@ -5,16 +5,16 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Model\Sqlite;
+namespace Titon\Db\Sqlite;
 
-use Titon\Model\Driver\AbstractPdoDriver;
-use Titon\Model\Driver\Type;
-use Titon\Model\Driver\Type\AbstractType;
+use Titon\Db\Driver\AbstractPdoDriver;
+use Titon\Db\Driver\Type;
+use Titon\Db\Driver\Type\AbstractType;
 
 /**
  * A driver that represents the SQLite database and uses PDO.
  *
- * @package Titon\Model\Sqlite
+ * @package Titon\Db\Sqlite
  */
 class SqliteDriver extends AbstractPdoDriver {
 
@@ -41,7 +41,7 @@ class SqliteDriver extends AbstractPdoDriver {
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Model\Type\AbstractType
+     * @uses Titon\Db\Type\AbstractType
      */
     public function describeTable($table) {
         return $this->cache([__METHOD__, $table], function() use ($table) {
@@ -126,8 +126,8 @@ class SqliteDriver extends AbstractPdoDriver {
      */
     public function getSupportedTypes() {
         return [
-            'string' => 'Titon\Model\Driver\Type\StringType',
-            'real' => 'Titon\Model\Driver\Type\FloatType'
+            'string' => 'Titon\Db\Driver\Type\StringType',
+            'real' => 'Titon\Db\Driver\Type\FloatType'
         ] + parent::getSupportedTypes();
     }
 

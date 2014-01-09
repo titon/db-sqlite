@@ -1,10 +1,10 @@
-# Model.SQLite v0.1.8 [![Build Status](https://travis-ci.org/titon/model-sqlite.png)](https://travis-ci.org/titon/model-sqlite) #
+# DB\SQLite v0.1.8 [![Build Status](https://travis-ci.org/titon/db-sqlite.png)](https://travis-ci.org/titon/db-sqlite) #
 
-Provides SQLite access for the Titon Model package.
+Provides SQLite access for the Titon DB package.
 
 ### Dependencies ###
 
-* `Model`
+* `DB`
 
 ### Requirements ###
 

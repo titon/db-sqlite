@@ -1,8 +1,8 @@
 {
-    "name": "titon/model-sqlite",
+    "name": "titon/db-sqlite",
     "type": "library",
-    "description": "Provides SQLite database access for the Titon Model package.",
-    "keywords": ["titon", "model", "driver", "sqlite", "pdo", "database"],
+    "description": "Provides SQLite database access for the Titon database package.",
+    "keywords": ["titon", "database", "driver", "sqlite", "pdo"],
     "homepage": "http://titon.io",
     "license": "BSD-2",
     "authors": [
@@ -14,13 +14,13 @@
     "require": {
         "php": ">=5.4.0",
         "ext-pdo_sqlite": "*",
-        "titon/model": "*"
+        "titon/db": "*"
     },
     "require-dev": {
         "titon/test": "*",
         "titon/cache": "*"
     },
     "autoload": {
-        "psr-0": { "Titon\\Model\\Sqlite": "src/" }
+        "psr-0": { "Titon\\Db\\Sqlite": "src/" }
     }
 }

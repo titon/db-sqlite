@@ -5,18 +5,18 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Model\Sqlite;
+namespace Titon\Db\Sqlite;
 
-use Titon\Model\Driver\Dialect\AbstractPdoDialect;
-use Titon\Model\Driver\Schema;
-use Titon\Model\Driver\Type\AbstractType;
-use Titon\Model\Exception\UnsupportedFeatureException;
-use Titon\Model\Query;
+use Titon\Db\Driver\Dialect\AbstractPdoDialect;
+use Titon\Db\Driver\Schema;
+use Titon\Db\Driver\Type\AbstractType;
+use Titon\Db\Exception\UnsupportedFeatureException;
+use Titon\Db\Query;
 
 /**
  * Inherit the default dialect rules and override for SQLite specific syntax.
  *
- * @package Titon\Model\Sqlite
+ * @package Titon\Db\Sqlite
  */
 class SqliteDialect extends AbstractPdoDialect {
 
@@ -118,7 +118,7 @@ class SqliteDialect extends AbstractPdoDialect {
     /**
      * {@inheritdoc}
      *
-     * @throws \Titon\Model\Exception\UnsupportedFeatureException
+     * @throws \Titon\Db\Exception\UnsupportedFeatureException
      */
     public function buildMultiInsert(Query $query) {
         throw new UnsupportedFeatureException('SQLite does not support multi-inserts');

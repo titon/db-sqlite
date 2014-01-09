@@ -5,9 +5,9 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Model\Sqlite;
+namespace Titon\Db\Sqlite;
 
-use Titon\Model\Data\AbstractUpdateTest;
+use Titon\Db\Data\AbstractUpdateTest;
 
 /**
  * Test class for database updating.

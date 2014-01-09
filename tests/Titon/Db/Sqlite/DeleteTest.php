@@ -5,9 +5,9 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Model\Sqlite;
+namespace Titon\Db\Sqlite;
 
-use Titon\Model\Data\AbstractDeleteTest;
+use Titon\Db\Data\AbstractDeleteTest;
 
 /**
  * Test class for database record deleting.

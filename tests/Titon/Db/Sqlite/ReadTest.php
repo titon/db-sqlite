@@ -5,14 +5,14 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Model\Sqlite;
+namespace Titon\Db\Sqlite;
 
-use Titon\Model\Data\AbstractReadTest;
-use Titon\Model\Entity;
-use Titon\Model\Query\Func;
-use Titon\Test\Stub\Model\Book;
-use Titon\Test\Stub\Model\Order;
-use Titon\Test\Stub\Model\Stat;
+use Titon\Db\Data\AbstractReadTest;
+use Titon\Db\Entity;
+use Titon\Db\Query\Func;
+use Titon\Test\Stub\Table\Book;
+use Titon\Test\Stub\Table\Order;
+use Titon\Test\Stub\Table\Stat;
 
 /**
  * Test class for database reading.
