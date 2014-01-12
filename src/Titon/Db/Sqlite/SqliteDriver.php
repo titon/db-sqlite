@@ -45,7 +45,7 @@ class SqliteDriver extends AbstractPdoDriver {
      */
     public function describeTable($table) {
         return $this->cache([__METHOD__, $table], function() use ($table) {
-            $columns = $this->query('PRAGMA table_info("' . $table  . '");')->fetchAll(false);
+            $columns = $this->query('PRAGMA table_info("' . $table  . '");')->find();
             $schema = [];
 
             if (!$columns) {
@@ -145,7 +145,7 @@ class SqliteDriver extends AbstractPdoDriver {
         $database = $database ?: $this->getDatabase();
 
         return $this->cache([__METHOD__, $database], function() use ($database) {
-            $tables = $this->query('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->fetchAll(false);
+            $tables = $this->query('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->find();
             $schema = [];
 
             if (!$tables) {

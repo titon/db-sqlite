@@ -8,6 +8,7 @@
 namespace Titon\Db\Sqlite;
 
 use Titon\Db\Data\AbstractMiscTest;
+use Titon\Db\Entity;
 use Titon\Db\Query;
 use Titon\Test\Stub\Table\User;
 
@@ -55,20 +56,20 @@ class MiscTest extends AbstractMiscTest {
         $query->where('country_id', 'in', $query->subQuery('id')->from('countries'))->orderBy('id', 'asc');
 
         $this->assertEquals([
-            ['id' => 1, 'country_id' => 1, 'username' => 'miles'],
-            ['id' => 2, 'country_id' => 3, 'username' => 'batman'],
-            ['id' => 3, 'country_id' => 2, 'username' => 'superman'],
-            ['id' => 4, 'country_id' => 5, 'username' => 'spiderman'],
-            ['id' => 5, 'country_id' => 4, 'username' => 'wolverine'],
-        ], $query->fetchAll(false));
+            new Entity(['id' => 1, 'country_id' => 1, 'username' => 'miles']),
+            new Entity(['id' => 2, 'country_id' => 3, 'username' => 'batman']),
+            new Entity(['id' => 3, 'country_id' => 2, 'username' => 'superman']),
+            new Entity(['id' => 4, 'country_id' => 5, 'username' => 'spiderman']),
+            new Entity(['id' => 5, 'country_id' => 4, 'username' => 'wolverine']),
+        ], $query->fetchAll());
 
         // Single record
         $query = $user->select('id', 'country_id', 'username');
         $query->where('country_id', '=', $query->subQuery('id')->from('countries')->where('iso', 'USA'));
 
         $this->assertEquals([
-            ['id' => 1, 'country_id' => 1, 'username' => 'miles']
-        ], $query->fetchAll(false));
+            new Entity(['id' => 1, 'country_id' => 1, 'username' => 'miles'])
+        ], $query->fetchAll());
     }
 
 }

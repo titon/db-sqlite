@@ -33,7 +33,7 @@ class ReadTest extends AbstractReadTest {
             $query->func('SUM', ['health' => Func::FIELD])->asAlias('sum')
         ]);
 
-        $this->assertEquals(['sum' => 2900], $query->fetch(false));
+        $this->assertEquals(new Entity(['sum' => 2900]), $query->fetch());
 
         // SUBSTRING
         $query = $stat->select();
@@ -42,10 +42,10 @@ class ReadTest extends AbstractReadTest {
         ]);
 
         $this->assertEquals([
-            ['shortName' => 'War'],
-            ['shortName' => 'Ran'],
-            ['shortName' => 'Mag'],
-        ], $query->fetchAll(false));
+            new Entity(['shortName' => 'War']),
+            new Entity(['shortName' => 'Ran']),
+            new Entity(['shortName' => 'Mag']),
+        ], $query->fetchAll());
 
         // SUBSTRING as field in where
         $query = $stat->select('id', 'name');
@@ -55,8 +55,8 @@ class ReadTest extends AbstractReadTest {
         );
 
         $this->assertEquals([
-            ['id' => 1, 'name' => 'Warrior']
-        ], $query->fetchAll(false));
+            new Entity(['id' => 1, 'name' => 'Warrior'])
+        ], $query->fetchAll());
     }
 
     /**
@@ -129,25 +129,25 @@ class ReadTest extends AbstractReadTest {
             ->groupBy('user_id');
 
         $this->assertEquals([
-            ['id' => 27, 'user_id' => 1, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-04-14 12:33:02', 'qty' => 97, 'count' => 5],
-            ['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5],
-            ['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7],
-            ['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7],
-            ['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6],
-        ], $query->fetchAll(false));
+            new Entity(['id' => 27, 'user_id' => 1, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-04-14 12:33:02', 'qty' => 97, 'count' => 5]),
+            new Entity(['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5]),
+            new Entity(['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7]),
+            new Entity(['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7]),
+            new Entity(['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6]),
+        ], $query->fetchAll());
 
         $query->having('qty', '>', 100);
 
         $this->assertEquals([
-            ['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7],
-            ['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6],
-        ], $query->fetchAll(false));
+            new Entity(['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7]),
+            new Entity(['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6]),
+        ], $query->fetchAll());
 
         $query->having('count', '>', 6);
 
         $this->assertEquals([
-            ['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7]
-        ], $query->fetchAll(false));
+            new Entity(['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7])
+        ], $query->fetchAll());
     }
 
     /**
@@ -167,28 +167,28 @@ class ReadTest extends AbstractReadTest {
             ->groupBy('user_id');
 
         $this->assertEquals([
-            ['id' => 27, 'user_id' => 1, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-04-14 12:33:02', 'qty' => 97, 'count' => 5],
-            ['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5],
-            ['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7],
-            ['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7],
-            ['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6],
-        ], $query->fetchAll(false));
+            new Entity(['id' => 27, 'user_id' => 1, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-04-14 12:33:02', 'qty' => 97, 'count' => 5]),
+            new Entity(['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5]),
+            new Entity(['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7]),
+            new Entity(['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7]),
+            new Entity(['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6]),
+        ], $query->fetchAll());
 
         $query->orHaving('qty', '<=', 90);
 
         $this->assertEquals([
-            ['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5],
-            ['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7],
-        ], $query->fetchAll(false));
+            new Entity(['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5]),
+            new Entity(['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7]),
+        ], $query->fetchAll());
 
         $query->orHaving('count', '>=', 6);
 
         $this->assertEquals([
-            ['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5],
-            ['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7],
-            ['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7],
-            ['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6],
-        ], $query->fetchAll(false));
+            new Entity(['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 77, 'count' => 5]),
+            new Entity(['id' => 28, 'user_id' => 3, 'quantity' => 13, 'status' => 'delivered', 'shipped' => '2013-06-03 12:33:02', 'qty' => 90, 'count' => 7]),
+            new Entity(['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 114, 'count' => 7]),
+            new Entity(['id' => 25, 'user_id' => 5, 'quantity' => 9, 'status' => 'shipped', 'shipped' => '2013-04-30 12:33:02', 'qty' => 112, 'count' => 6]),
+        ], $query->fetchAll());
     }
 
     /**
@@ -216,10 +216,10 @@ class ReadTest extends AbstractReadTest {
             });
 
         $this->assertEquals([
-            ['id' => 27, 'user_id' => 1, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-04-14 12:33:02', 'qty' => 49, 'count' => 3],
-            ['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 41, 'count' => 2],
-            ['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 40, 'count' => 3],
-        ], $query->fetchAll(false));
+            new Entity(['id' => 27, 'user_id' => 1, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-04-14 12:33:02', 'qty' => 49, 'count' => 3]),
+            new Entity(['id' => 22, 'user_id' => 2, 'quantity' => 15, 'status' => 'shipped', 'shipped' => '2013-12-28 12:33:02', 'qty' => 41, 'count' => 2]),
+            new Entity(['id' => 30, 'user_id' => 4, 'quantity' => 9, 'status' => 'delivered', 'shipped' => '2013-10-25 12:33:02', 'qty' => 40, 'count' => 3]),
+        ], $query->fetchAll());
     }
 
     /**
