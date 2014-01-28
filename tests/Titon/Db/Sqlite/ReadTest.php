@@ -10,9 +10,9 @@ namespace Titon\Db\Sqlite;
 use Titon\Db\Data\AbstractReadTest;
 use Titon\Db\Entity;
 use Titon\Db\Query\Func;
-use Titon\Test\Stub\Table\Book;
-use Titon\Test\Stub\Table\Order;
-use Titon\Test\Stub\Table\Stat;
+use Titon\Test\Stub\Repository\Book;
+use Titon\Test\Stub\Repository\Order;
+use Titon\Test\Stub\Repository\Stat;
 
 /**
  * Test class for database reading.
