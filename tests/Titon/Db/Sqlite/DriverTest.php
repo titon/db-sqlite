@@ -20,7 +20,7 @@ class DriverTest extends \Titon\Db\Driver\PdoDriverTest {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->object = new SqliteDriver('default', Config::get('db'));
+        $this->object = new SqliteDriver(Config::get('db'));
         $this->object->connect();
 
         $this->table = new User();
@@ -184,13 +184,13 @@ class DriverTest extends \Titon\Db\Driver\PdoDriverTest {
     public function testGetDsn() {
         $this->assertEquals('sqlite:', $this->object->getDsn());
 
-        $this->object->config->memory = true;
+        $this->object->setConfig('memory', true);
         $this->assertEquals('sqlite::memory:', $this->object->getDsn());
 
-        $this->object->config->path = '/path/to/sql.db';
+        $this->object->setConfig('path', '/path/to/sql.db');
         $this->assertEquals('sqlite:/path/to/sql.db', $this->object->getDsn());
 
-        $this->object->config->dsn = 'custom:dsn';
+        $this->object->setConfig('dsn', 'custom:dsn');
         $this->assertEquals('custom:dsn', $this->object->getDsn());
     }
 

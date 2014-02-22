@@ -23,7 +23,7 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->driver = new SqliteDriver('default', Config::get('db'));
+        $this->driver = new SqliteDriver(Config::get('db'));
         $this->driver->connect();
 
         $this->object = $this->driver->getDialect();

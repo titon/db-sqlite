@@ -45,7 +45,7 @@ class SqliteDriver extends AbstractPdoDriver {
      */
     public function describeTable($table) {
         return $this->cache([__METHOD__, $table], function() use ($table) {
-            $columns = $this->query('PRAGMA table_info("' . $table  . '");')->find();
+            $columns = $this->executeQuery('PRAGMA table_info("' . $table  . '");')->find();
             $schema = [];
 
             if (!$columns) {
@@ -105,16 +105,16 @@ class SqliteDriver extends AbstractPdoDriver {
      * {@inheritdoc}
      */
     public function getDsn() {
-        if ($dsn = $this->config->dsn) {
+        if ($dsn = $this->getConfig('dsn')) {
             return $dsn;
         }
 
         $dsn = $this->getDriver() . ':';
 
-        if ($path = $this->config->path) {
+        if ($path = $this->getConfig('path')) {
             $dsn .= $path;
 
-        } else if ($this->config->memory) {
+        } else if ($this->getConfig('memory')) {
             $dsn .= ':memory:';
         }
 
@@ -145,7 +145,7 @@ class SqliteDriver extends AbstractPdoDriver {
         $database = $database ?: $this->getDatabase();
 
         return $this->cache([__METHOD__, $database], function() use ($database) {
-            $tables = $this->query('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->find();
+            $tables = $this->executeQuery('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->find();
             $schema = [];
 
             if (!$tables) {
@@ -162,6 +162,13 @@ class SqliteDriver extends AbstractPdoDriver {
 
             return $schema;
         });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function newQuery($string) {
+        return new SqliteQuery($string);
     }
 
 }
