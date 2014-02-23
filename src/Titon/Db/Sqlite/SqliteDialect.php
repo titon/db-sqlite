@@ -42,7 +42,8 @@ class SqliteDialect extends AbstractPdoDialect {
      * @type array
      */
     protected $_config = [
-        'quoteCharacter' => '"'
+        'quoteCharacter' => '"',
+        'virtualJoins' => true
     ];
 
     /**
@@ -52,7 +53,7 @@ class SqliteDialect extends AbstractPdoDialect {
      */
     protected $_statements = [
         Query::INSERT           => 'INSERT {a.or} INTO {table} {fields} VALUES {values}',
-        Query::SELECT           => 'SELECT {a.distinct} {fields} FROM {table} {joins} {where} {groupBy} {having} {unions} {orderBy} {limit}',
+        Query::SELECT           => 'SELECT {a.distinct} {fields} FROM {table} {joins} {where} {groupBy} {having} {compounds} {orderBy} {limit}',
         Query::UPDATE           => 'UPDATE {a.or} {table} SET {fields} {where}',
         Query::DELETE           => 'DELETE FROM {table} {where}',
         Query::CREATE_TABLE     => "CREATE {a.temporary} TABLE IF NOT EXISTS {table} (\n{columns}{keys}\n)",
