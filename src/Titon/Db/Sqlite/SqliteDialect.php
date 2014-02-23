@@ -24,7 +24,6 @@ class SqliteDialect extends AbstractPdoDialect {
     const BINARY = 'binary';
     const DEFERRABLE = 'deferrable';
     const FAIL = 'fail';
-    const IGNORE = 'ignore';
     const INIT_DEFERRED = 'initiallyDeferred';
     const INIT_IMMEDIATE = 'initiallyImmediate';
     const MATCH = 'match';
