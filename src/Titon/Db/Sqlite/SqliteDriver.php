@@ -148,10 +148,6 @@ class SqliteDriver extends AbstractPdoDriver {
             $tables = $this->executeQuery('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->find();
             $schema = [];
 
-            if (!$tables) {
-                return $schema;
-            }
-
             foreach ($tables as $table) {
                 if ($table['name'] === 'sqlite_sequence') {
                     continue;

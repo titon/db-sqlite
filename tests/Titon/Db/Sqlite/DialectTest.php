@@ -19,6 +19,7 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
     }
 
     public function testAddStatements() {
+        // SQLite doesn't support TRUNCATE, but just add it to fix tests
         $this->object->addStatement(Query::TRUNCATE, new Dialect\Statement('TRUNCATE {table}'));
 
         parent::testAddStatements();
@@ -105,39 +106,25 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
         $this->assertRegExp('/DROP INDEX IF EXISTS (`|\")idx(`|\")/', $this->object->buildDropIndex($query));
     }
 
+    /**
+     * @expectedException \Titon\Db\Exception\UnsupportedQueryStatementException
+     */
     public function testBuildMultiInsert() {
-        $this->markTestSkipped('SQLite does not support compound multi-insert');
+        parent::testBuildMultiInsert();
     }
 
     public function testBuildUpdate() {
         $query = new Query(Query::UPDATE, new User());
-
-        // No fields
-        try {
-            $this->object->buildUpdate($query);
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        $query->from('foobar');
 
         $query->fields(['username' => 'miles']);
-
-        // No table
-        try {
-            $this->object->buildUpdate($query);
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
-
-        $query->from('foobar');
         $this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
 
-        // no limit
+        // SQLite doesn't support limit
         $query->limit(15);
         $this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
 
-        // or order by
+        // Or order by
         $query->orderBy('username', 'desc');
         $this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
 
@@ -243,14 +230,14 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
 
         $schema->addColumn('column5', [
             'type' => 'varchar',
-            'collate' => 'utf8_general_ci',
+            'collate' => SqliteDialect::BINARY,
             'charset' => 'utf8',
             'null' => false
         ]);
 
-        $expected .= ',\n(`|\")column5(`|\") VARCHAR\(255\) NOT NULL';
+        $expected .= ',\n(`|\")column5(`|\") VARCHAR\(255\) NOT NULL COLLATE binary';
 
-        $this->assertRegExp('/' . $expected . '/', $this->object->formatColumns($schema));
+        $this->assertRegExp('/^' . $expected . '$/', $this->object->formatColumns($schema));
     }
 
     public function testFormatFieldsWithJoins() {
@@ -301,12 +288,11 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
         $schema->addIndex('column2');
 
         // no indices
-
         $this->assertRegExp('/' . $expected . '/', $this->object->formatTableKeys($schema));
     }
 
     public function testFormatTablePrimary() {
-        $this->markTestSkipped('Purposefully not implementing primary key constraints');
+        $this->assertEquals('', $this->object->formatTablePrimary(['foo' => 'bar']));
     }
 
     public function testFormatTableUnique() {
