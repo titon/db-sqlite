@@ -8,9 +8,9 @@
 namespace Titon\Db\Sqlite;
 
 use Titon\Db\Driver\Dialect\AbstractPdoDialect;
+use Titon\Db\Driver\Dialect\Statement;
 use Titon\Db\Driver\Schema;
-use Titon\Db\Driver\Type\AbstractType;
-use Titon\Db\Exception\UnsupportedFeatureException;
+use Titon\Db\Exception\UnsupportedQueryStatementException;
 use Titon\Db\Query;
 
 /**
@@ -46,51 +46,12 @@ class SqliteDialect extends AbstractPdoDialect {
     ];
 
     /**
-     * List of full SQL statements.
-     *
-     * @type array
-     */
-    protected $_statements = [
-        Query::INSERT           => 'INSERT {a.or} INTO {table} {fields} VALUES {values}',
-        Query::SELECT           => 'SELECT {a.distinct} {fields} FROM {table} {joins} {where} {groupBy} {having} {compounds} {orderBy} {limit}',
-        Query::UPDATE           => 'UPDATE {a.or} {table} SET {fields} {where}',
-        Query::DELETE           => 'DELETE FROM {table} {where}',
-        Query::CREATE_TABLE     => "CREATE {a.temporary} TABLE IF NOT EXISTS {table} (\n{columns}{keys}\n)",
-        Query::CREATE_INDEX     => 'CREATE {a.type} INDEX IF NOT EXISTS {index} ON {table} ({fields})',
-        Query::DROP_TABLE       => 'DROP TABLE IF EXISTS {table}',
-        Query::DROP_INDEX       => 'DROP INDEX IF EXISTS {index}'
-    ];
-
-    /**
-     * Available attributes for each query type.
-     *
-     * @type array
-     */
-    protected $_attributes = [
-        Query::INSERT => [
-            'or' => ''
-        ],
-        Query::SELECT => [
-            'distinct' => false
-        ],
-        Query::UPDATE => [
-            'or' => ''
-        ],
-        Query::CREATE_TABLE => [
-            'temporary' => false
-        ],
-        Query::CREATE_INDEX => [
-            'type' => ''
-        ]
-    ];
-
-    /**
      * Modify clauses and keywords.
      */
     public function initialize() {
         parent::initialize();
 
-        $this->_clauses = array_replace($this->_clauses, [
+        $this->addClauses([
             self::DEFERRABLE        => 'DEFERRABLE %s',
             self::EITHER            => 'OR %s',
             self::MATCH             => 'MATCH %s',
@@ -98,7 +59,7 @@ class SqliteDialect extends AbstractPdoDialect {
             self::UNIQUE_KEY        => 'UNIQUE (%2$s)'
         ]);
 
-        $this->_keywords = array_replace($this->_keywords, [
+        $this->addKeywords([
             self::ABORT             => 'ABORT',
             self::BINARY            => 'BINARY',
             self::AUTO_INCREMENT    => 'AUTOINCREMENT',
@@ -113,15 +74,29 @@ class SqliteDialect extends AbstractPdoDialect {
             self::RTRIM             => 'RTRIM',
             self::UNIQUE            => 'UNIQUE'
         ]);
+
+        $this->addStatements([
+            Query::INSERT        => new Statement('INSERT {or} INTO {table} {fields} VALUES {values}'),
+            Query::SELECT        => new Statement('SELECT {distinct} {fields} FROM {table} {joins} {where} {groupBy} {having} {compounds} {orderBy} {limit}'),
+            Query::UPDATE        => new Statement('UPDATE {or} {table} SET {fields} {where}'),
+            Query::DELETE        => new Statement('DELETE FROM {table} {where}'),
+            Query::CREATE_TABLE  => new Statement("CREATE {temporary} TABLE IF NOT EXISTS {table} (\n{columns}{keys}\n)"),
+            Query::CREATE_INDEX  => new Statement('CREATE {type} INDEX IF NOT EXISTS {index} ON {table} ({fields})'),
+            Query::DROP_TABLE    => new Statement('DROP TABLE IF EXISTS {table}'),
+            Query::DROP_INDEX    => new Statement('DROP INDEX IF EXISTS {index}')
+        ]);
+
+        // SQLite doesn't support TRUNCATE
+        unset($this->_statements[Query::TRUNCATE]);
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws \Titon\Db\Exception\UnsupportedFeatureException
+     * @throws \Titon\Db\Exception\UnsupportedQueryStatementException
      */
     public function buildMultiInsert(Query $query) {
-        throw new UnsupportedFeatureException('SQLite does not support multi-inserts');
+        throw new UnsupportedQueryStatementException('SQLite does not support multi-inserts');
     }
 
     /**
@@ -132,8 +107,7 @@ class SqliteDialect extends AbstractPdoDialect {
 
         foreach ($schema->getColumns() as $column => $options) {
             $type = $options['type'];
-            $dataType = AbstractType::factory($type, $this->getDriver());
-
+            $dataType = $this->getDriver()->getType($type);
             $options = $options + $dataType->getDefaultOptions();
 
             // Sqlite doesn't like the shorthand version

@@ -67,7 +67,7 @@ class SqliteDriver extends AbstractPdoDriver {
                 }
 
                 // Inherit type defaults
-                $data = AbstractType::factory($type, $this)->getDefaultOptions();
+                $data = $this->getType($type)->getDefaultOptions();
 
                 // Overwrite with custom
                 $data = [

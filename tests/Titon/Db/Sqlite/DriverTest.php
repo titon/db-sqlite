@@ -1,24 +1,12 @@
 <?php
-/**
- * @copyright   2010-2013, The Titon Project
- * @license     http://opensource.org/licenses/bsd-license.php
- * @link        http://titon.io
- */
-
 namespace Titon\Db\Sqlite;
 
 use Titon\Common\Config;
 use Titon\Test\Stub\Repository\Stat;
 use Titon\Test\Stub\Repository\User;
 
-/**
- * Test class for driver specific testing.
- */
 class DriverTest extends \Titon\Db\Driver\PdoDriverTest {
 
-    /**
-     * This method is called before a test is executed.
-     */
     protected function setUp() {
         $this->object = new SqliteDriver(Config::get('db'));
         $this->object->connect();
@@ -26,9 +14,6 @@ class DriverTest extends \Titon\Db\Driver\PdoDriverTest {
         $this->table = new User();
     }
 
-    /**
-     * Test table inspecting.
-     */
     public function testDescribeTable() {
         $this->loadFixtures(['Users', 'Stats']);
 
@@ -178,9 +163,6 @@ class DriverTest extends \Titon\Db\Driver\PdoDriverTest {
         ], $user->getDriver()->describeTable($stat->getTable()));
     }
 
-    /**
-     * Test DSN building.
-     */
     public function testGetDsn() {
         $this->assertEquals('sqlite:', $this->object->getDsn());
 

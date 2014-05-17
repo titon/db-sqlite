@@ -1,79 +1,77 @@
 <?php
-/**
- * @copyright   2010-2013, The Titon Project
- * @license     http://opensource.org/licenses/bsd-license.php
- * @link        http://titon.io
- */
-
 namespace Titon\Db\Sqlite;
 
-use Titon\Db\Data\AbstractReadTest;
 use Titon\Db\Entity;
 use Titon\Db\EntityCollection;
-use Titon\Db\Query\Func;
+use Titon\Db\Query;
 use Titon\Db\Query\Predicate;
-use Titon\Db\Query\SubQuery;
 use Titon\Test\Stub\Repository\Book;
 use Titon\Test\Stub\Repository\Order;
 use Titon\Test\Stub\Repository\Stat;
-use Titon\Test\Stub\Repository\User;
 
-/**
- * Test class for database reading.
- */
-class ReadTest extends AbstractReadTest {
+class RepositoryTest extends \Titon\Db\RepositoryTest {
 
-    /**
-     * Test functions in select statements.
-     */
-    public function testSelectFunctions() {
-        $this->loadFixtures('Stats');
+    public function testCount() {
+        $this->loadFixtures('Users');
 
-        $stat = new Stat();
+        $this->assertEquals(5, $this->object->select()->count());
 
-        // SUM
-        $query = $stat->select();
-        $query->fields([
-            $query->func('SUM', ['health' => Func::FIELD])->asAlias('sum')
-        ]);
+        $this->object->delete(1);
 
-        $this->assertEquals(new Entity(['sum' => 2900]), $query->first());
-
-        // SUBSTRING
-        $query = $stat->select();
-        $query->fields([
-            $query->func('SUBSTR', ['name' => Func::FIELD, 1, 3])->asAlias('shortName')
-        ]);
-
-        $this->assertEquals(new EntityCollection([
-            new Entity(['shortName' => 'War']),
-            new Entity(['shortName' => 'Ran']),
-            new Entity(['shortName' => 'Mag']),
-        ]), $query->all());
-
-        // SUBSTRING as field in where
-        $query = $stat->select('id', 'name');
-        $query->where(
-            $query->func('SUBSTR', ['name' => Func::FIELD, -3]),
-            'ior'
-        );
-
-        $this->assertEquals(new EntityCollection([
-            new Entity(['id' => 1, 'name' => 'Warrior'])
-        ]), $query->all());
+        $this->assertEquals(4, $this->object->select()->count());
     }
 
-    /**
-     * Test REGEXP and NOT REGEXP clauses.
-     */
+    public function testCreateMany() {
+        $this->markTestSkipped('SQLite does not support compound multi-insert');
+    }
+
+    public function testCreateDropTable() {
+        $sql = sprintf("SELECT COUNT(name) FROM sqlite_master WHERE type = 'table' AND name = '%s';", $this->object->getTable());
+
+        $this->assertEquals(0, $this->object->getDriver()->executeQuery($sql)->count());
+
+        $this->object->createTable();
+
+        $this->assertEquals(1, $this->object->getDriver()->executeQuery($sql)->count());
+
+        $this->object->dropTable();
+
+        $this->assertEquals(0, $this->object->getDriver()->executeQuery($sql)->count());
+    }
+
+    public function testDeleteWithOrdering() {
+        $this->markTestSkipped('SQLite does not support ORDER BY in DELETE');
+    }
+
+    public function testDeleteWithLimit() {
+        $this->markTestSkipped('SQLite does not support LIMIT in DELETE');
+    }
+
+    public function testSelect() {
+        $query = new SqliteQuery(SqliteQuery::SELECT, $this->object);
+        $query->from($this->object->getTable(), 'User')->fields('id', 'username');
+
+        $this->assertEquals($query, $this->object->select('id', 'username'));
+    }
+
     public function testSelectRegexp() {
         $this->markTestSkipped('SQLite does not support the REGEXP clause');
     }
 
-    /**
-     * Test order by clause.
-     */
-    public function testOrdering() {
+    public function testSelectGrouping() {
+        $this->loadFixtures('Books');
+
+        $book = new Book();
+
+        // SQLite returns the last group record
+        $this->assertEquals(new EntityCollection([
+            new Entity(['id' => 5, 'name' => 'A Dance with Dragons']),
+            new Entity(['id' => 12, 'name' => 'Harry Potter and the Deathly Hallows']),
+            new Entity(['id' => 15, 'name' => 'The Return of the King'])
+        ]), $book->select('id', 'name')->groupBy('series_id')->orderBy('id', 'asc')->all());
+    }
+
+    public function testSelectOrdering() {
         $this->loadFixtures('Books');
 
         $book = new Book();
@@ -100,26 +98,7 @@ class ReadTest extends AbstractReadTest {
         ])->all());
     }
 
-    /**
-     * Test group by clause.
-     */
-    public function testGrouping() {
-        $this->loadFixtures('Books');
-
-        $book = new Book();
-
-        // SQLite returns the last group record
-        $this->assertEquals(new EntityCollection([
-            new Entity(['id' => 5, 'name' => 'A Dance with Dragons']),
-            new Entity(['id' => 12, 'name' => 'Harry Potter and the Deathly Hallows']),
-            new Entity(['id' => 15, 'name' => 'The Return of the King'])
-        ]), $book->select('id', 'name')->groupBy('series_id')->orderBy('id', 'asc')->all());
-    }
-
-    /**
-     * Test having predicates using AND conjunction.
-     */
-    public function testHavingAnd() {
+    public function testSelectHavingAnd() {
         $this->loadFixtures('Orders');
 
         $order = new Order();
@@ -127,8 +106,8 @@ class ReadTest extends AbstractReadTest {
         $query
             ->fields([
                 'id', 'user_id', 'quantity', 'status', 'shipped',
-                $query->func('SUM', ['quantity' => 'field'])->asAlias('qty'),
-                $query->func('COUNT', ['user_id' => 'field'])->asAlias('count')
+                Query::func('SUM', ['quantity' => 'field'])->asAlias('qty'),
+                Query::func('COUNT', ['user_id' => 'field'])->asAlias('count')
             ])
             ->groupBy('user_id');
 
@@ -154,10 +133,7 @@ class ReadTest extends AbstractReadTest {
         ]), $query->all());
     }
 
-    /**
-     * Test having predicates using AND conjunction.
-     */
-    public function testHavingOr() {
+    public function testSelectHavingOr() {
         $this->loadFixtures('Orders');
 
         $order = new Order();
@@ -165,8 +141,8 @@ class ReadTest extends AbstractReadTest {
         $query
             ->fields([
                 'id', 'user_id', 'quantity', 'status', 'shipped',
-                $query->func('SUM', ['quantity' => 'field'])->asAlias('qty'),
-                $query->func('COUNT', ['user_id' => 'field'])->asAlias('count')
+                Query::func('SUM', ['quantity' => 'field'])->asAlias('qty'),
+                Query::func('COUNT', ['user_id' => 'field'])->asAlias('count')
             ])
             ->groupBy('user_id');
 
@@ -195,10 +171,7 @@ class ReadTest extends AbstractReadTest {
         ]), $query->all());
     }
 
-    /**
-     * Test nested having predicates.
-     */
-    public function testHavingNested() {
+    public function testSelectHavingNested() {
         $this->loadFixtures('Orders');
 
         $order = new Order();
@@ -226,35 +199,26 @@ class ReadTest extends AbstractReadTest {
         ]), $query->all());
     }
 
-    /**
-     * Test that outer join firstes data.
-     */
-    public function testOuterJoin() {
+    public function testSelectFieldInvalidColumn() {
+        $this->markTestSkipped('SQLite does not throw exceptions for invalid columns');
+    }
+
+    public function testSelectOuterJoin() {
         $this->markTestSkipped('SQLite does not support OUTER joins');
     }
 
-    /**
-     * Test that right join firstes data.
-     */
-    public function testRightJoin() {
+    public function testSelectRightJoin() {
         $this->markTestSkipped('SQLite does not support RIGHT joins');
     }
 
-    /**
-     * Test that straight join firstes data.
-     */
-    public function testStraightJoin() {
+    public function testSelectStraightJoin() {
         $this->markTestSkipped('SQLite does not support STRAIGHT joins');
     }
 
-    /**
-     * Test unions merge multiple selects.
-     */
-    public function testUnions() {
+    public function testSelectUnions() {
         $this->loadFixtures(['Users', 'Books', 'Authors']);
 
-        $user = new User();
-        $query = $user->select('username AS name');
+        $query = $this->object->select('username AS name');
         $query->union($query->subQuery('name')->from('books')->where('series_id', 1));
         $query->union($query->subQuery('name')->from('authors'));
 
@@ -291,16 +255,11 @@ class ReadTest extends AbstractReadTest {
         ]), $query->all());
     }
 
-    /**
-     * Test that sub-queries return results.
-     */
-    public function testSubQueries() {
+    public function testSelectSubQueries() {
         $this->loadFixtures(['Users', 'Profiles', 'Countries']);
 
-        $user = new User();
-
         // SQLite does not support the ANY filter, so use IN instead
-        $query = $user->select('id', 'country_id', 'username');
+        $query = $this->object->select('id', 'country_id', 'username');
         $query->where('country_id', 'in', $query->subQuery('id')->from('countries'))->orderBy('id', 'asc');
 
         $this->assertEquals(new EntityCollection([
@@ -312,12 +271,24 @@ class ReadTest extends AbstractReadTest {
         ]), $query->all());
 
         // Single record
-        $query = $user->select('id', 'country_id', 'username');
+        $query = $this->object->select('id', 'country_id', 'username');
         $query->where('country_id', '=', $query->subQuery('id')->from('countries')->where('iso', 'USA'));
 
         $this->assertEquals(new EntityCollection([
             new Entity(['id' => 1, 'country_id' => 1, 'username' => 'miles'])
         ]), $query->all());
+    }
+
+    public function testTruncate() {
+        $this->markTestSkipped('SQLite does not support the TRUNCATE statement');
+    }
+
+    public function testUpdateMultipleWithLimit() {
+        $this->markTestSkipped('SQLite does not support LIMIT in UPDATE');
+    }
+
+    public function testUpdateMultipleWithOrderBy() {
+        $this->markTestSkipped('SQLite does not support ORDER BY in UPDATE');
     }
 
 }
