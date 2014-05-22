@@ -22,7 +22,11 @@ class RepositoryTest extends \Titon\Db\RepositoryTest {
     }
 
     public function testCreateMany() {
-        $this->markTestSkipped('SQLite does not support compound multi-insert');
+        $this->markTestSkipped('SQLite does not support multi-insert');
+    }
+
+    public function testCreateManyFiltersInvalidColumn() {
+        $this->markTestSkipped('SQLite does not support multi-insert');
     }
 
     public function testCreateDropTable() {

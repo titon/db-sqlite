@@ -316,9 +316,12 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
     }
 
     public function testQuote() {
+        $this->assertEquals('', $this->object->quote(''));
+        $this->assertEquals('*', $this->object->quote('*'));
         $this->assertEquals('"foo"', $this->object->quote('foo'));
         $this->assertEquals('"foo"', $this->object->quote('foo"'));
         $this->assertEquals('"foo"', $this->object->quote('""foo"'));
+        $this->assertEquals('"foo"', $this->object->quote('f"o"o'));
 
         $this->assertEquals('"foo"."bar"', $this->object->quote('foo.bar'));
         $this->assertEquals('"foo"."bar"', $this->object->quote('foo"."bar'));
