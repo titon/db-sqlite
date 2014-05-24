@@ -44,8 +44,8 @@ class SqliteDriver extends AbstractPdoDriver {
      * @uses Titon\Db\Type\AbstractType
      */
     public function describeTable($table) {
-        return $this->cache([__METHOD__, $table], function() use ($table) {
-            $columns = $this->executeQuery('PRAGMA table_info("' . $table  . '");')->find();
+        return $this->cacheQuery([__METHOD__, $table], function(SqliteDriver $driver) use ($table) {
+            $columns = $driver->executeQuery('PRAGMA table_info("' . $table  . '");')->find();
             $schema = [];
 
             if (!$columns) {
@@ -67,7 +67,7 @@ class SqliteDriver extends AbstractPdoDriver {
                 }
 
                 // Inherit type defaults
-                $data = $this->getType($type)->getDefaultOptions();
+                $data = $driver->getType($type)->getDefaultOptions();
 
                 // Overwrite with custom
                 $data = [
@@ -91,7 +91,7 @@ class SqliteDriver extends AbstractPdoDriver {
             }
 
             return $schema;
-        });
+        }, '+1 year');
     }
 
     /**
@@ -144,8 +144,8 @@ class SqliteDriver extends AbstractPdoDriver {
     public function listTables($database = null) {
         $database = $database ?: $this->getDatabase();
 
-        return $this->cache([__METHOD__, $database], function() use ($database) {
-            $tables = $this->executeQuery('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->find();
+        return $this->cacheQuery([__METHOD__, $database], function(SqliteDriver $driver) use ($database) {
+            $tables = $driver->executeQuery('SELECT * FROM sqlite_master WHERE type = ?;', ['table'])->find();
             $schema = [];
 
             foreach ($tables as $table) {
@@ -157,7 +157,7 @@ class SqliteDriver extends AbstractPdoDriver {
             }
 
             return $schema;
-        });
+        }, '+1 year');
     }
 
     /**
