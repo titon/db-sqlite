@@ -27,20 +27,20 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
 
     public function testBuildCreateIndex() {
         $query = new Query(Query::CREATE_INDEX, new User());
-        $query->fields('profile_id')->from('users')->asAlias('idx');
+        $query->data(['profile_id'])->from('users')->asAlias('idx');
 
         $this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\)/', $this->object->buildCreateIndex($query));
 
-        $query->fields(['profile_id' => 5]);
+        $query->data(['profile_id' => 5]);
         $this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\(5\)\)/', $this->object->buildCreateIndex($query));
 
-        $query->fields(['profile_id' => 'asc', 'other_id']);
+        $query->data(['profile_id' => 'asc', 'other_id']);
         $this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\") ASC, (`|\")other_id(`|\")\)/', $this->object->buildCreateIndex($query));
 
-        $query->fields(['profile_id' => ['length' => 5, 'order' => 'desc']]);
+        $query->data(['profile_id' => ['length' => 5, 'order' => 'desc']]);
         $this->assertRegExp('/CREATE\s+INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\(5\) DESC\)/', $this->object->buildCreateIndex($query));
 
-        $query->fields('profile_id')->attribute('type', SqliteDialect::UNIQUE);
+        $query->data(['profile_id'])->attribute('type', SqliteDialect::UNIQUE);
         $this->assertRegExp('/CREATE UNIQUE INDEX IF NOT EXISTS (`|\")idx(`|\") ON (`|\")users(`|\") \((`|\")profile_id(`|\")\)/', $this->object->buildCreateIndex($query));
     }
 
@@ -117,7 +117,7 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
         $query = new Query(Query::UPDATE, new User());
         $query->from('foobar');
 
-        $query->fields(['username' => 'miles']);
+        $query->data(['username' => 'miles']);
         $this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
 
         // SQLite doesn't support limit
@@ -128,7 +128,7 @@ class DialectTest extends \Titon\Db\Driver\DialectTest {
         $query->orderBy('username', 'desc');
         $this->assertRegExp('/UPDATE\s+(`|\")foobar(`|\")\s+SET (`|\")username(`|\") = \?;/', $this->object->buildUpdate($query));
 
-        $query->fields([
+        $query->data([
             'email' => 'email@domain.com',
             'website' => 'http://titon.io'
         ]);

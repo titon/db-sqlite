@@ -25,6 +25,10 @@ class RepositoryTest extends \Titon\Db\RepositoryTest {
         $this->markTestSkipped('SQLite does not support multi-insert');
     }
 
+    public function testCreateManyEntity() {
+        $this->markTestSkipped('SQLite does not support multi-insert');
+    }
+
     public function testCreateManyFiltersInvalidColumn() {
         $this->markTestSkipped('SQLite does not support multi-insert');
     }
