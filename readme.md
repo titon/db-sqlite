@@ -1,4 +1,4 @@
-# DB\SQLite v0.4.2 [![Build Status](https://travis-ci.org/titon/db-sqlite.png)](https://travis-ci.org/titon/db-sqlite) #
+# DB\SQLite v0.4.3 [![Build Status](https://travis-ci.org/titon/db-sqlite.png)](https://travis-ci.org/titon/db-sqlite) #
 
 Provides SQLite access for the Titon DB package.
 
